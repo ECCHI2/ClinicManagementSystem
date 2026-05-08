@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+<h:head>
+    <title>Medimanage | Hasta Kayıt</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        /* الناف بار الفيروزي الداكن */
+        .custom-nav {
+            background: linear-gradient(135deg, #0f766e, #134e4a) !important;
+        }
+
+        /* لون رؤوس الجداول ليتناسب مع الهوية */
+        .table thead th {
+            background-color: #f8fafc;
+            color: #0d9488;
+            border-bottom: 2px solid #0d9488;
+        }
+
+        /* تحسين شكل الحقول عند التركيز */
+        .form-control:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 0.25rem rgba(20, 184, 166, 0.25);
+        }
+        .custom-calendar input {
+            display: block;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .ui-datepicker {
+            font-family: 'Segoe UI', sans-serif;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</h:head>
+<h:body>
+    <!-- Navbar الموحد -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-nav mb-5 shadow-sm">
+        <div class="container">
+            <h:link outcome="index" class="navbar-brand fw-bold">
+                <i class="fas fa-clinic-medical me-2"></i> MEDIMANAGE
+            </h:link>
+
+            <div class="ms-auto d-flex align-items-center">
+                <h:link outcome="index" styleClass="btn btn-outline-light btn-sm me-3 rounded-pill px-3">
+                    <i class="fas fa-home me-1"></i> Ana Sayfa
+                </h:link>
+
+                <h:panelGroup rendered="#{loginBean.currentUser != null}">
+                <span class="text-white me-3 small">
+                    <i class="fas fa-user-circle me-1"></i>
+                    <b>#{loginBean.currentUser.username}</b>
+                    <span class="badge bg-light text-dark ms-2" style="font-size: 0.7rem;">
+                        #{loginBean.currentUser.role}
+                    </span>
+                </span>
+                    <h:form style="display:inline;">
+                        <h:commandLink action="#{loginBean.logout()}" styleClass="btn btn-danger btn-sm rounded-pill px-3">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </h:commandLink>
+                    </h:form>
+                </h:panelGroup>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-card">
+            <h3 class="fw-bold mb-4 text-dark">
+                <!-- تم تغيير class "text-primary" إلى style يدوي باللون الفيروزي -->
+                <i class="fas fa-user-plus me-2" style="color: #0d9488;"></i> Hasta Kayıt ve Yönetimi
+            </h3>
+            <h:form id="addPatientForm" styleClass="form-section shadow-sm">
+                <h:inputHidden value="#{patientBean.patient.id}" />
+                <p:messages id="messages" showDetail="true" closable="true">
+                    <p:autoUpdate />
+                </p:messages>
+
+                <h5 class="fw-bold mb-3 small text-uppercase text-muted">Yeni Hasta Bilgileri</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">TC Kimlik No</label>
+                        <h:inputText value="#{patientBean.patient.tcNo}" required="true" maxlength="11" styleClass="form-control" pt:placeholder="11 Haneli">
+                            <f:validateRegex pattern="^[0-9]{11}$" />
+                        </h:inputText>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Ad</label>
+                        <h:inputText value="#{patientBean.patient.firstName}" required="true" styleClass="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Soyad</label>
+                        <h:inputText value="#{patientBean.patient.lastName}" required="true" styleClass="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold">Telefon</label>
+                        <h:inputText value="#{patientBean.patient.phone}" required="true" maxlength="11" styleClass="form-control" pt:placeholder="05xx..." />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold" style="color: #0d9488;">Doğum Tarihi</label>
+                        <h:inputText value="#{patientBean.patient.birthDate}"
+                                     styleClass="form-control"
+                                     pt:type="date"
+                                     pt:max="9999-12-31"
+                                     oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10)"
+                                     required="true"
+                                     requiredMessage="Doğum tarihi zorunludur!">
+                            <f:convertDateTime pattern="yyyy-MM-dd" />
+                        </h:inputText>
+                    </div>
+
+                    <div class="col-md-9 text-end align-self-end">
+                        <h:commandButton action="#{patientBean.save()}"
+                                         value="Hastayı Sisteme Kaydet"
+                                         styleClass="btn text-white fw-bold px-5 py-2 shadow-sm"
+                                         style="background: linear-gradient(135deg, #0d9488, #14b8a6); border: none; border-radius: 10px;">
+                            <f:ajax execute="@form" render="@form :patientList :messages" />
+                        </h:commandButton>
+                    </div>
+                </div>
+            </h:form>
+
+            <div class="table-responsive">
+                <h:form id="patientList">
+                    <h:dataTable value="#{patientBean.getPatients()}" var="p" styleClass="table table-hover align-middle">
+                        <h:column><f:facet name="header">TC No</f:facet>#{p.tcNo}</h:column>
+                        <h:column><f:facet name="header">Hasta Adı Soyadı</f:facet><span class="fw-bold">#{p.firstName} #{p.lastName}</span></h:column>
+                        <h:column><f:facet name="header">Telefon</f:facet>#{p.phone}</h:column>
+
+                        <h:column>
+                            <f:facet name="header">Yaş</f:facet>
+                            <span class="badge bg-info text-dark">#{p.age}</span>
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">İşlemler</f:facet>
+                            <h:commandLink action="#{patientBean.prepareEdit(p)}" styleClass="text-primary me-3">
+                                <i class="fas fa-edit"></i>
+                            </h:commandLink>
+                            <h:commandLink action="#{patientBean.delete(p)}" styleClass="text-danger" onclick="return confirm('Silinsin mi?')">
+                                <i class="fas fa-trash-alt"></i>
+                            </h:commandLink>
+                        </h:column>
+                    </h:dataTable>
+                </h:form>
+
+            </div>
+        </div>
+    </div>
+</h:body>
+</html>

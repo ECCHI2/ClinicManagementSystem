@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Giriş | Medimanage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f766e, #134e4a);
+            height: 100 vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .login-card {
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 40px;
+        }
+        .login-icon {
+            font-size: 50px;
+            color: #0d9488;
+            margin-bottom: 20px;
+        }
+        .btn-login {
+            background-color: #0d9488;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            background-color: #0f766e;
+            transform: translateY(-2px);
+            color: white;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+    </style>
+</h:head>
+<h:body>
+    <div class="login-card text-center">
+        <div class="login-icon">
+            <i class="fas fa-notes-medical"></i>
+        </div>
+        <h3 class="fw-bold mb-4" style="color: #1e293b;">MEDIMANAGE</h3>
+        <p class="text-muted mb-4">Lütfen bilgilerinizi giriniz</p>
+
+        <h:form id="loginForm">
+            <p:messages id="messages" showDetail="false" closable="true">
+                <p:autoUpdate />
+            </p:messages>
+
+            <div class="text-start">
+                <label class="form-label fw-bold small">Kullanıcı Adı</label>
+                <h:inputText value="#{loginBean.username}" styleClass="form-control" required="true"
+                             requiredMessage="Kullanıcı adı gerekli!"/>
+
+                <label class="form-label fw-bold small">Şifre</label>
+                <h:inputSecret value="#{loginBean.password}" styleClass="form-control" required="true"
+                               requiredMessage="Şifre gerekli!"/>
+            </div>
+
+            <h:commandButton action="#{loginBean.login()}" value="Giriş Yap" styleClass="btn btn-login"/>
+        </h:form>
+    </div>
+</h:body>
+</html>

@@ -1,0 +1,22 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="ClinicManagementSystem">
+    <output-path>$PROJECT_DIR$/out/artifacts/ClinicManagementSystem</output-path>
+    <root id="archive" name="ClinicManagementSystem.war">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="ClinicManagementSystem" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Maven: jakarta.persistence:jakarta.persistence-api:3.1.0" />
+          <element id="library" level="project" name="Maven: org.checkerframework:checker-qual:3.42.0" />
+          <element id="library" level="project" name="Maven: org.eclipse.persistence:org.eclipse.persistence.core:4.0.7" />
+          <element id="library" level="project" name="Maven: org.eclipse.persistence:org.eclipse.persistence.jpa:4.0.7" />
+          <element id="library" level="project" name="Maven: org.eclipse.persistence:org.eclipse.persistence.asm:9.8.0" />
+          <element id="library" level="project" name="Maven: org.postgresql:postgresql:42.7.2" />
+          <element id="library" level="project" name="Maven: org.eclipse.persistence:org.eclipse.persistence.jpa.jpql:4.0.7" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="ClinicManagementSystem/web/Web" />
+    </root>
+  </artifact>
+</component>
