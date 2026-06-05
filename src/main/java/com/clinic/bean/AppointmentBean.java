@@ -1,10 +1,9 @@
 package com.clinic.bean;
 
 import com.clinic.entity.Appointment;
-import com.clinic.entity.AppointmentStatus;
+import com.clinic.enums.AppointmentStatus;
 import com.clinic.entity.Doctor;
 import com.clinic.entity.Patient;
-import com.clinic.facade.DoctorFacade;
 import com.clinic.facadeLocal.AppointmentFacadeLocal;
 import com.clinic.facadeLocal.DoctorFacadeLocal;
 import com.clinic.facadeLocal.PatientFacadeLocal;

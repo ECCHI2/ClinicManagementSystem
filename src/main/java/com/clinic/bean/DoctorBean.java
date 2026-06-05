@@ -1,6 +1,8 @@
 package com.clinic.bean;
 
+import com.clinic.entity.Appointment;
 import com.clinic.entity.Doctor;
+import com.clinic.facadeLocal.AppointmentFacadeLocal;
 import com.clinic.facadeLocal.DoctorFacadeLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -18,11 +20,16 @@ public class DoctorBean implements Serializable {
     private Doctor doctor = new Doctor();
     private List<Doctor> doctors;
 
+    @EJB
+    private DoctorFacadeLocal doctorFacade;
+
+    // الحل النووي: استدعينا واجهة المواعيد لنفحص المواعيد بأنفسنا
+    @EJB
+    private AppointmentFacadeLocal appointmentFacade;
+
     public void loadDoctors() {
         this.doctors = doctorFacade.findAll();
     }
-    @EJB
-    private DoctorFacadeLocal doctorFacade;
 
     @PostConstruct
     public void init() {
@@ -31,7 +38,6 @@ public class DoctorBean implements Serializable {
 
     public void save() {
         try {
-            // Yeni kayıt eklenirken TC kimlik numarası kontrolü
             if (doctor.getId() == null && doctorFacade.existsByTc(doctor.getTcNo())) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Bu TC Kimlik numarası ile kayıtlı bir doktor zaten var!"));
@@ -48,8 +54,8 @@ public class DoctorBean implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Güncellendi", "Doktor bilgileri başarıyla güncellendi."));
             }
 
-            doctor = new Doctor(); // Formu temizle
-            loadDoctors(); // Listeyi yenile
+            doctor = new Doctor();
+            loadDoctors();
 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -58,37 +64,49 @@ public class DoctorBean implements Serializable {
         }
     }
 
+    public void delete(Doctor doctor) {
+        // الفحص الاستباقي اليدوي القاطع
+        boolean hasAppointments = false;
+        List<Appointment> allAppointments = appointmentFacade.findAll();
+        for (Appointment a : allAppointments) {
+            if (a.getDoctor() != null && a.getDoctor().getId().equals(doctor.getId())) {
+                hasAppointments = true;
+                break;
+            }
+        }
+
+        if (hasAppointments) {
+            // نبعت الرسالة مباشرة بدون Flash Scope
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu doktor silinemez! Çünkü sistemde ona ait randevular bulunmaktadır."));
+            return;
+        }
+
+        try {
+            doctorFacade.remove(doctor);
+            doctors = doctorFacade.findAll();
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Doktor başarıyla silindi."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_FATAL, "Sistem Hatası", "Silme işlemi sırasında bir hata oluştu."));
+        }
+    }
+
+    public void prepareEdit(Doctor d) {
+        this.doctor = d;
+    }
+
+    public Doctor getDoctor() { return doctor; }
+    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+
     public List<Doctor> getDoctorList() {
         if (doctors == null) {
             loadDoctors();
         }
         return doctors;
     }
-
     public void setDoctorList(List<Doctor> doctorList) {
         this.doctors = doctorList;
-    }
-
-    public void delete(Doctor d) {
-        doctorFacade.remove(d);
-        loadDoctors(); // اسحب القائمة فوراً بعد الحذف
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Silindi", "Doktor kaydı silindi."));
-    }
-
-    public void prepareEdit(Doctor d) {
-        // هنا نقوم بضبط الكائن 'doctor' ليكون هو الكائن المختار من الجدول
-        this.doctor = d;
-    }
-
-    // Getters & Setters
-    public Doctor getDoctor() { return doctor; }
-    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
-
-    public List<Doctor> getDoctors() {
-        if (doctors == null) {
-            doctors = doctorFacade.findAll();
-        }
-        return doctors;
     }
 }

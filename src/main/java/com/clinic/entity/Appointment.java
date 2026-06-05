@@ -1,5 +1,6 @@
 package com.clinic.entity;
 
+import com.clinic.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;

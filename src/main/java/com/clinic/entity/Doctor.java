@@ -44,6 +44,12 @@ public class Doctor implements Serializable {
         Doctor doctor = (Doctor) o; // تم التصحيح: تحويل لطبيب وليس مريض
         return Objects.equals(id, doctor.id);
     }
+    @ManyToOne
+    @JoinColumn(name = "poliklinik_id")
+    private Poliklinik poliklinik;
+
+    public Poliklinik getPoliklinik() { return poliklinik; }
+    public void setPoliklinik(Poliklinik poliklinik) { this.poliklinik = poliklinik; }
 
     @Override
     public int hashCode() {

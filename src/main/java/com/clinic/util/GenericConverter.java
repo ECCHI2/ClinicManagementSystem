@@ -6,7 +6,6 @@ import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-
 @FacesConverter(value = "genericConverter", managed = true)
 public class GenericConverter implements Converter<Object> {
 

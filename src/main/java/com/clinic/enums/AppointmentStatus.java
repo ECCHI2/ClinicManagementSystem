@@ -1,4 +1,4 @@
-package com.clinic.entity;
+package com.clinic.enums;
 
 public enum AppointmentStatus {
     PENDING("Beklemede"),

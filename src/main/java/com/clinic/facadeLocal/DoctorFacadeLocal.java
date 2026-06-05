@@ -12,6 +12,6 @@ public interface DoctorFacadeLocal {
     Doctor find(Object id);
     List<Doctor> findAll();
     long countDoctors();
-
+    boolean hasAppointments(Long doctorId);
     boolean existsByTc(String tc);
 }

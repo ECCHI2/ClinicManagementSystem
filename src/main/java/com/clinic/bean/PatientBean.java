@@ -1,6 +1,7 @@
 package com.clinic.bean;
 
 import com.clinic.entity.Patient;
+import com.clinic.facade.PatientFacade;
 import com.clinic.facadeLocal.PatientFacadeLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -76,9 +77,11 @@ public class PatientBean implements Serializable {
         this.patient = patient;
     }
 
-    public List<Patient> getPatients() {
+    public List<Patient> getPatientList() {
+        // فحصنا قائمة patients بدل المريض الواحد
         if (patients == null) {
-            loadPatients();
+            // استخدمنا patientFacade بحرف صغير، وخزنا النتيجة بالقائمة
+            patients = patientFacade.findAll();
         }
         return patients;
     }

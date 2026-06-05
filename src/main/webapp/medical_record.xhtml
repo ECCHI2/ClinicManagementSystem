@@ -1,0 +1,120 @@
+<ui:composition template="/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:define name="title">Tıbbi Kayıtlar | Medimanage</ui:define>
+
+    <ui:define name="custom_css">
+        <style>
+            .main-card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: white;}
+            .header-bg { background: linear-gradient(135deg, #0d9488, #14b8a6); color: white; border-radius: 15px 15px 0 0; padding: 20px; }
+            .btn-save { background-color: #0d9488; color: white; border-radius: 10px; padding: 10px 25px; font-weight: bold; transition: all 0.3s;}
+            .btn-save:hover { background-color: #0f766e; color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 148, 136, 0.3);}
+            .form-label { font-weight: 600; color: #334155; font-size: 0.9rem; }
+            .form-control { border-radius: 10px; border: 1px solid #e2e8f0; }
+            .form-control:focus { border-color: #14b8a6; box-shadow: 0 0 0 0.25rem rgba(20, 184, 166, 0.25); }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="container mb-5">
+
+            <p:growl id="globalGrowl" showDetail="true" life="6000">
+                <p:autoUpdate />
+            </p:growl>
+
+            <h:panelGroup rendered="#{loginBean.admin}">
+                <div class="card main-card mb-5">
+                    <div class="header-bg">
+                        <h4 class="mb-0"><i class="fas fa-notes-medical me-2"></i> Yeni Tıbbi Kayıt Oluştur</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h:form id="recordForm">
+                            <h:inputHidden value="#{medicalRecordBean.record.id}" />
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Hasta Seçin</label>
+                                    <h:selectOneMenu value="#{medicalRecordBean.record.patient.id}" styleClass="form-select" required="true">
+                                        <f:selectItem itemLabel="Hasta Seçiniz..." itemValue="#{null}" noSelectionOption="true"/>
+                                        <f:selectItems value="#{patientBean.patientList}" var="p"
+                                                       itemLabel="#{p.firstName} #{p.lastName} (TC: #{p.tcNo})" itemValue="#{p.id}"/>
+                                    </h:selectOneMenu>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Doktor Seçin</label>
+                                    <h:selectOneMenu value="#{medicalRecordBean.record.doctor.id}" styleClass="form-select" required="true">
+                                        <f:selectItem itemLabel="Doktor Seçiniz..." itemValue="#{null}" noSelectionOption="true"/>
+                                        <f:selectItems value="#{doctorBean.doctorList}" var="d"
+                                                       itemLabel="Dr. #{d.firstName} #{d.lastName} - #{d.specialty}" itemValue="#{d.id}"/>
+                                    </h:selectOneMenu>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Teşhis (Tanı)</label>
+                                    <h:inputText value="#{medicalRecordBean.record.diagnosis}" styleClass="form-control" required="true" pt:placeholder="Hastalık teşhisi..." />
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Klinik Notlar</label>
+                                    <h:inputTextarea value="#{medicalRecordBean.record.clinicalNotes}" styleClass="form-control" rows="4" pt:placeholder="Doktorun detaylı notları..." />
+                                </div>
+                                <div class="col-12 text-end mt-4">
+                                    <h:commandButton action="#{medicalRecordBean.save()}" value="Kaydı Kaydet" styleClass="btn btn-save">
+                                        <f:ajax execute="@form" render="@form :recordTableForm :globalGrowl" />
+                                    </h:commandButton>
+                                </div>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+
+                <h:form id="recordTableForm">
+                    <div class="card main-card p-4">
+                        <h5 class="fw-bold mb-4" style="color: #0d9488;"><i class="fas fa-list me-2"></i> Tıbbi Kayıtlar Listesi</h5>
+
+                        <p:dataTable value="#{medicalRecordBean.records}" var="r"
+                                     emptyMessage="Sistemde henüz kayıt bulunmamaktadır."
+                                     paginator="true" rows="10" paginatorPosition="bottom"
+                                     rowKey="#{r.id}"
+                                     tableStyleClass="table table-hover table-bordered align-middle shadow-sm mt-3"
+                                     style="background: white; border-radius: 10px;">
+
+                            <p:column headerText="Kayıt ID">
+                                <span class="badge bg-light text-dark">##{r.id}</span>
+                            </p:column>
+
+                            <p:column headerText="Hasta">
+                                <h:outputText value="#{r.patient.firstName} #{r.patient.lastName}" />
+                            </p:column>
+
+                            <p:column headerText="Doktor">
+                                <h:outputText value="Dr. #{r.doctor.firstName}" />
+                            </p:column>
+
+                            <p:column headerText="Teşhis">
+                                <h:outputText value="#{r.diagnosis}" />
+                            </p:column>
+
+                            <p:column headerText="İşlemler">
+
+                                <p:commandLink action="#{medicalRecordBean.prepareEdit(r.id)}" styleClass="text-primary me-3 text-decoration-none"
+                                               process="@this" update=":recordForm" resetValues="true">
+                                    <i class="fas fa-edit fa-lg"></i>
+                                </p:commandLink>
+
+                                <p:commandLink action="#{medicalRecordBean.delete(r.id)}" styleClass="text-danger text-decoration-none"
+                                               process="@this" update=":recordTableForm :globalGrowl"
+                                               onclick="if(!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return false;">
+                                    <i class="fas fa-trash-alt fa-lg"></i>
+                                </p:commandLink>
+
+                            </p:column>
+                        </p:dataTable>
+                    </div>
+                </h:form>
+            </h:panelGroup>
+        </div>
+    </ui:define>
+</ui:composition>

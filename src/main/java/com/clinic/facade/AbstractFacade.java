@@ -9,6 +9,4 @@ public abstract class AbstractFacade {
 
     @PersistenceContext(unitName = "ClinicPU")
     protected EntityManager entityManager;
-
-
 }
