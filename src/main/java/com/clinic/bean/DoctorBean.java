@@ -1,8 +1,6 @@
 package com.clinic.bean;
 
-import com.clinic.entity.Appointment;
 import com.clinic.entity.Doctor;
-import com.clinic.facadeLocal.AppointmentFacadeLocal;
 import com.clinic.facadeLocal.DoctorFacadeLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -22,10 +20,6 @@ public class DoctorBean implements Serializable {
 
     @EJB
     private DoctorFacadeLocal doctorFacade;
-
-    // الحل النووي: استدعينا واجهة المواعيد لنفحص المواعيد بأنفسنا
-    @EJB
-    private AppointmentFacadeLocal appointmentFacade;
 
     public void loadDoctors() {
         this.doctors = doctorFacade.findAll();
@@ -65,31 +59,31 @@ public class DoctorBean implements Serializable {
     }
 
     public void delete(Doctor doctor) {
-        // الفحص الاستباقي اليدوي القاطع
-        boolean hasAppointments = false;
-        List<Appointment> allAppointments = appointmentFacade.findAll();
-        for (Appointment a : allAppointments) {
-            if (a.getDoctor() != null && a.getDoctor().getId().equals(doctor.getId())) {
-                hasAppointments = true;
-                break;
-            }
-        }
-
-        if (hasAppointments) {
-            // نبعت الرسالة مباشرة بدون Flash Scope
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu doktor silinemez! Çünkü sistemde ona ait randevular bulunmaktadır."));
-            return;
-        }
-
         try {
             doctorFacade.remove(doctor);
-            doctors = doctorFacade.findAll();
+            loadDoctors(); // تحديث القائمة
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Doktor başarıyla silindi."));
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_FATAL, "Sistem Hatası", "Silme işlemi sırasında bir hata oluştu."));
+            // البحث الجنائي عن خطأ قاعدة البيانات
+            Throwable t = e.getCause();
+            boolean isConstraintViolation = false;
+
+            while (t != null) {
+                if (t.getMessage() != null && (t.getMessage().toLowerCase().contains("constraint") || t.getMessage().toLowerCase().contains("foreign key"))) {
+                    isConstraintViolation = true;
+                    break;
+                }
+                t = t.getCause();
+            }
+
+            if (isConstraintViolation) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu doktor silinemez! Çünkü sistemde ona ait randevular veya tıbbi kayıtlar bulunmaktadır."));
+            } else {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_FATAL, "Sistem Hatası", "Silme işlemi sırasında bir hata oluştu."));
+            }
         }
     }
 

@@ -2,7 +2,6 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:p="http://primefaces.org/ui"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
@@ -20,11 +19,20 @@
             .btn-appointment:hover { background-color: #0f766e; transform: translateY(-2px); color: white; box-shadow: 0 5px 15px rgba(13, 148, 136, 0.3); }
             .table-custom { border-radius: 15px; overflow: hidden; border: 1px solid #f1f5f9; }
             .table-custom thead { background-color: #f8fafc; }
+
+            /* تنسيق رسائل التنبيه الموحد */
+            .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+            .messages li { padding: 15px; border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
+            .messages .info { background-color: #d1ecf1; color: #0c5460; border-left: 5px solid #0c5460; }
+            .messages .error { background-color: #f8d7da; color: #721c24; border-left: 5px solid #721c24; }
         </style>
     </ui:define>
 
     <ui:define name="content">
         <div class="container mb-5">
+
+            <h:messages id="globalMessages" styleClass="messages" infoClass="info" errorClass="error" globalOnly="false" showDetail="true" showSummary="true" />
+
             <div class="card main-card">
                 <div class="appointment-header text-center">
                     <h3 class="mb-0"><i class="fas fa-calendar-plus me-2"></i> Yeni Randevu Oluştur</h3>
@@ -32,30 +40,28 @@
                 <div class="card-body p-4 p-md-5">
                     <h:form id="appointmentForm">
                         <h:inputHidden value="#{appointmentBean.appointment.id}" />
-                        <p:messages id="messages" showDetail="true" closable="true">
-                            <p:autoUpdate />
-                        </p:messages>
+
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label">Doktor Seçin</label>
-                                <h:selectOneMenu value="#{appointmentBean.appointment.doctor.id}" styleClass="form-select">
-                                    <f:selectItem itemLabel="Doktor Seçiniz..." itemValue=""/>
+                                <label class="form-label">Doctor Seçin</label>
+                                <h:selectOneMenu value="#{appointmentBean.appointment.doctor}" styleClass="form-select" converter="genericConverter" required="true">
+                                    <f:selectItem itemLabel="Doctor Seçiniz..." itemValue="#{null}"/>
                                     <f:selectItems value="#{appointmentBean.allDoctors}" var="d"
-                                                   itemLabel="#{d.firstName} #{d.lastName}" itemValue="#{d.id}"/>
+                                                   itemLabel="Dr. #{d.firstName} #{d.lastName}" itemValue="#{d}"/>
                                 </h:selectOneMenu>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Hasta Seçin</label>
-                                <h:selectOneMenu value="#{appointmentBean.appointment.patient.id}" styleClass="form-select">
-                                    <f:selectItem itemLabel="Hasta Seçiniz..." itemValue=""/>
+                                <h:selectOneMenu value="#{appointmentBean.appointment.patient}" styleClass="form-select" converter="genericConverter" required="true">
+                                    <f:selectItem itemLabel="Hasta Seçiniz..." itemValue="#{null}"/>
                                     <f:selectItems value="#{appointmentBean.allPatients}" var="p"
                                                    itemLabel="#{p.firstName} #{p.lastName} (TC: #{p.tcNo})"
-                                                   itemValue="#{p.id}"/>
+                                                   itemValue="#{p}"/>
                                 </h:selectOneMenu>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Notlar</label>
-                                <h:inputTextarea value="#{appointmentBean.appointment.note}" styleClass="form-control" rows="3" placeholder="Randevu notlarını buraya yazın..."/>
+                                <h:inputTextarea value="#{appointmentBean.appointment.note}" styleClass="form-control" rows="3" pt:placeholder="Randevu notlarınızı buraya yazın..." />
                             </div>
 
                             <div class="col-md-6 mt-3">
@@ -63,7 +69,8 @@
                                 <h:inputText value="#{appointmentBean.appointment.appointmentDate}"
                                              styleClass="form-control"
                                              pt:type="datetime-local"
-                                             pt:max="2099-12-31T23:59">
+                                             pt:max="2099-12-31T23:59"
+                                             required="true">
                                     <f:convertDateTime pattern="yyyy-MM-dd'T'HH:mm" timeZone="GMT+3" />
                                 </h:inputText>
                             </div>
@@ -78,32 +85,35 @@
 
                             <div class="col-md-4 offset-md-4 mt-5">
                                 <h:commandButton action="#{appointmentBean.save()}" value="Randevuyu Kaydet" styleClass="btn btn-appointment">
-                                    <f:ajax execute="@form" render="@form :listForm messages"/>
+                                    <f:ajax execute="@form" render="@form :listForm :globalMessages"/>
                                 </h:commandButton>
                             </div>
                         </div>
                     </h:form>
 
-                    <hr class="my-5" style="border-top: 2px dashed #e2e8f0;"/>
+                    <hr class="my-5" style="border-top: 2px dashed #e2e8f0;" />
 
                     <h:form id="listForm">
                         <h5 class="mb-4 fw-bold text-dark"><i class="fas fa-clipboard-list text-teal me-2" style="color: #14b8a6;"></i> Güncel Randevu Listesi</h5>
                         <div class="table-responsive">
-                            <h:dataTable value="#{appointmentBean.appointmentList}" var="r" styleClass="table table-hover table-custom">
-                                <h:column><f:facet name="header" class="p-3">ID</f:facet>#{r.id}</h:column>
-                                <h:column><f:facet name="header" class="p-3">Doktor</f:facet>#{r.doctor.firstName} #{r.doctor.lastName}</h:column>
+                            <h:dataTable value="#{appointmentBean.appointmentList}" var="r" styleClass="table table-hover table-custom align-middle">
+                                <h:column><f:facet name="header" class="p-3">ID</f:facet>
+                                    <span class="badge bg-light text-dark">##{r.id}</span>
+                                </h:column>
+                                <h:column><f:facet name="header" class="p-3">Doktor</f:facet>Dr. #{r.doctor.firstName} #{r.doctor.lastName}</h:column>
                                 <h:column>
                                     <f:facet name="header" class="p-3">Hasta</f:facet>
                                     <div class="d-flex flex-column">
                                         <span class="fw-bold">#{r.patient.firstName} #{r.patient.lastName}</span>
                                         <small class="text-muted" style="font-size: 0.75rem;">TC: #{r.patient.tcNo}</small>
                                     </div>
-                                </h:column>                            <h:column>
-                                <f:facet name="header" class="p-3">Randevu Zamanı</f:facet>
-                                <h:outputText value="#{r.appointmentDate}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="GMT+3" />
-                                </h:outputText>
-                            </h:column>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header" class="p-3">Randevu Zamanı</f:facet>
+                                    <h:outputText value="#{r.appointmentDate}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="GMT+3" />
+                                    </h:outputText>
+                                </h:column>
                                 <h:column>
                                     <f:facet name="header">Durum</f:facet>
                                     <h:panelGroup rendered="#{r.status == 'PENDING'}">
@@ -130,9 +140,9 @@
 
                                         <h:commandLink action="#{appointmentBean.delete(r)}"
                                                        styleClass="text-danger text-decoration-none"
-                                                       onclick="return confirm('Bu randevuyu silmek istediğinize emin misiniz?')">
+                                                       onclick="if(!confirm('Bu randevuyu silmek istediğinize emin misiniz?')) return false;">
                                             <i class="fas fa-trash-alt fa-lg"></i>
-                                            <f:ajax render="@form :appointmentForm:messages" />
+                                            <f:ajax render="@form :globalMessages" />
                                         </h:commandLink>
                                     </div>
                                 </h:column>

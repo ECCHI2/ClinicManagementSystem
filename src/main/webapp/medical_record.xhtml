@@ -2,7 +2,6 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:p="http://primefaces.org/ui"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
@@ -17,15 +16,18 @@
             .form-label { font-weight: 600; color: #334155; font-size: 0.9rem; }
             .form-control { border-radius: 10px; border: 1px solid #e2e8f0; }
             .form-control:focus { border-color: #14b8a6; box-shadow: 0 0 0 0.25rem rgba(20, 184, 166, 0.25); }
+            /* تنسيق لرسائل التنبيه */
+            .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+            .messages li { padding: 15px; border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
+            .messages .info { background-color: #d1ecf1; color: #0c5460; border-left: 5px solid #0c5460; }
+            .messages .error { background-color: #f8d7da; color: #721c24; border-left: 5px solid #721c24; }
         </style>
     </ui:define>
 
     <ui:define name="content">
         <div class="container mb-5">
 
-            <p:growl id="globalGrowl" showDetail="true" life="6000">
-                <p:autoUpdate />
-            </p:growl>
+            <h:messages id="globalMessages" styleClass="messages" infoClass="info" errorClass="error" globalOnly="false" showDetail="true" showSummary="true" />
 
             <h:panelGroup rendered="#{loginBean.admin}">
                 <div class="card main-card mb-5">
@@ -62,7 +64,7 @@
                                 </div>
                                 <div class="col-12 text-end mt-4">
                                     <h:commandButton action="#{medicalRecordBean.save()}" value="Kaydı Kaydet" styleClass="btn btn-save">
-                                        <f:ajax execute="@form" render="@form :recordTableForm :globalGrowl" />
+                                        <f:ajax execute="@form" render="@form :recordTableForm :globalMessages" />
                                     </h:commandButton>
                                 </div>
                             </div>
@@ -74,44 +76,47 @@
                     <div class="card main-card p-4">
                         <h5 class="fw-bold mb-4" style="color: #0d9488;"><i class="fas fa-list me-2"></i> Tıbbi Kayıtlar Listesi</h5>
 
-                        <p:dataTable value="#{medicalRecordBean.records}" var="r"
-                                     emptyMessage="Sistemde henüz kayıt bulunmamaktadır."
-                                     paginator="true" rows="10" paginatorPosition="bottom"
-                                     rowKey="#{r.id}"
-                                     tableStyleClass="table table-hover table-bordered align-middle shadow-sm mt-3"
+                        <h:dataTable value="#{medicalRecordBean.records}" var="r"
+                                     styleClass="table table-hover table-bordered align-middle shadow-sm mt-3"
                                      style="background: white; border-radius: 10px;">
 
-                            <p:column headerText="Kayıt ID">
+                            <h:column>
+                                <f:facet name="header">Kayıt ID</f:facet>
                                 <span class="badge bg-light text-dark">##{r.id}</span>
-                            </p:column>
+                            </h:column>
 
-                            <p:column headerText="Hasta">
+                            <h:column>
+                                <f:facet name="header">Hasta</f:facet>
                                 <h:outputText value="#{r.patient.firstName} #{r.patient.lastName}" />
-                            </p:column>
+                            </h:column>
 
-                            <p:column headerText="Doktor">
+                            <h:column>
+                                <f:facet name="header">Doktor</f:facet>
                                 <h:outputText value="Dr. #{r.doctor.firstName}" />
-                            </p:column>
+                            </h:column>
 
-                            <p:column headerText="Teşhis">
+                            <h:column>
+                                <f:facet name="header">Teşhis</f:facet>
                                 <h:outputText value="#{r.diagnosis}" />
-                            </p:column>
+                            </h:column>
 
-                            <p:column headerText="İşlemler">
+                            <h:column>
+                                <f:facet name="header">İşlemler</f:facet>
 
-                                <p:commandLink action="#{medicalRecordBean.prepareEdit(r.id)}" styleClass="text-primary me-3 text-decoration-none"
-                                               process="@this" update=":recordForm" resetValues="true">
+                                <h:commandLink action="#{medicalRecordBean.prepareEdit(r.id)}" styleClass="text-primary me-3 text-decoration-none">
                                     <i class="fas fa-edit fa-lg"></i>
-                                </p:commandLink>
+                                    <f:ajax render=":recordForm" />
+                                </h:commandLink>
 
-                                <p:commandLink action="#{medicalRecordBean.delete(r.id)}" styleClass="text-danger text-decoration-none"
-                                               process="@this" update=":recordTableForm :globalGrowl"
+                                <h:commandLink action="#{medicalRecordBean.delete(r.id)}" styleClass="text-danger text-decoration-none"
                                                onclick="if(!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return false;">
                                     <i class="fas fa-trash-alt fa-lg"></i>
-                                </p:commandLink>
+                                    <f:ajax render="@form :globalMessages" />
+                                </h:commandLink>
 
-                            </p:column>
-                        </p:dataTable>
+                            </h:column>
+                        </h:dataTable>
+
                     </div>
                 </h:form>
             </h:panelGroup>

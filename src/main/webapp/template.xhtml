@@ -27,24 +27,33 @@
                 <ul class="navbar-nav me-auto">
                     <h:panelGroup rendered="#{loginBean.admin}">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="medicalDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-briefcase-medical me-1"></i> Tıbbi İşlemler
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-notes-medical me-2"></i> Tıbbi İşlemler
                             </a>
-                            <ul class="dropdown-menu shadow-sm" aria-labelledby="medicalDropdown">
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <h:link outcome="medical_record" styleClass="dropdown-item">
-                                        <i class="fas fa-notes-medical me-2 text-teal"></i> Tıbbi Kayıtlar
+                                    <h:link outcome="record" styleClass="dropdown-item">
+                                        <i class="fas fa-file-medical me-2"></i> Tıbbi Kayıtlar
                                     </h:link>
                                 </li>
                                 <li>
                                     <h:link outcome="prescription" styleClass="dropdown-item">
-                                        <i class="fas fa-pills me-2 text-teal"></i> Reçeteler
+                                        <i class="fas fa-pills me-2"></i> Reçeteler
                                     </h:link>
                                 </li>
-                                <li><hr class="dropdown-divider" /></li>
                                 <li>
                                     <h:link outcome="schedule" styleClass="dropdown-item">
-                                        <i class="fas fa-clock me-2 text-teal"></i> Çalışma Saatleri
+                                        <i class="fas fa-clock me-2"></i> Çalışma Saatleri
+                                    </h:link>
+                                </li>
+                                <li>
+                                    <h:link outcome="medicine" styleClass="dropdown-item">
+                                        <i class="fas fa-boxes me-2"></i> İlaç Stok
+                                    </h:link>
+                                </li>
+                                <li>
+                                    <h:link outcome="invoice" styleClass="dropdown-item">
+                                        <i class="fas fa-file-invoice-dollar me-2"></i> Fatura Yönetimi
                                     </h:link>
                                 </li>
                             </ul>

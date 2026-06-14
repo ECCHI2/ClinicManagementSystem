@@ -2,7 +2,6 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:p="http://primefaces.org/ui"
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
@@ -15,6 +14,12 @@
             .custom-calendar input { display: block; width: 100%; padding: 0.375rem 0.75rem; font-size: 1rem; border: 1px solid #dee2e6; border-radius: 0.375rem; }
             .ui-datepicker { font-family: 'Segoe UI', sans-serif; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
             .main-card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 20px; background: white;}
+
+            /* تنسيق رسائل التنبيه الموحد لكامل النظام */
+            .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+            .messages li { padding: 15px; border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
+            .messages .info { background-color: #d1ecf1; color: #0c5460; border-left: 5px solid #0c5460; }
+            .messages .error { background-color: #f8d7da; color: #721c24; border-left: 5px solid #721c24; }
         </style>
     </ui:define>
 
@@ -24,11 +29,11 @@
                 <h3 class="fw-bold mb-4 text-dark">
                     <i class="fas fa-user-plus me-2" style="color: #0d9488;"></i> Hasta Kayıt ve Yönetimi
                 </h3>
+
+                <h:messages id="globalMessages" styleClass="messages" infoClass="info" errorClass="error" globalOnly="false" showDetail="true" showSummary="true" />
+
                 <h:form id="addPatientForm" styleClass="form-section shadow-sm p-4 mb-4 rounded border">
                     <h:inputHidden value="#{patientBean.patient.id}" />
-                    <p:messages id="messages" showDetail="true" closable="true">
-                        <p:autoUpdate />
-                    </p:messages>
 
                     <h5 class="fw-bold mb-3 small text-uppercase text-muted">Yeni Hasta Bilgileri</h5>
                     <div class="row g-3">
@@ -72,15 +77,15 @@
                                              value="Hastayı Sisteme Kaydet"
                                              styleClass="btn text-white fw-bold px-5 py-2 shadow-sm"
                                              style="background: linear-gradient(135deg, #0d9488, #14b8a6); border: none; border-radius: 10px;">
-                                <f:ajax execute="@form" render="@form :patientList :messages" />
+                                <f:ajax execute="@form" render="@form :patientListForm :globalMessages" />
                             </h:commandButton>
                         </div>
                     </div>
                 </h:form>
 
                 <div class="table-responsive">
-                    <h:form id="patientList">
-                        <h:dataTable value="#{patientBean.getPatients()}" var="p" styleClass="table table-hover align-middle">
+                    <h:form id="patientListForm">
+                        <h:dataTable value="#{patientBean.patientList}" var="p" styleClass="table table-hover align-middle">
                             <h:column><f:facet name="header">TC No</f:facet>#{p.tcNo}</h:column>
                             <h:column><f:facet name="header">Hasta Adı Soyadı</f:facet><span class="fw-bold">#{p.firstName} #{p.lastName}</span></h:column>
                             <h:column><f:facet name="header">Telefon</f:facet>#{p.phone}</h:column>
@@ -94,9 +99,12 @@
                                 <f:facet name="header">İşlemler</f:facet>
                                 <h:commandLink action="#{patientBean.prepareEdit(p)}" styleClass="text-primary me-3">
                                     <i class="fas fa-edit"></i>
+                                    <f:ajax render=":addPatientForm" />
                                 </h:commandLink>
-                                <h:commandLink action="#{patientBean.delete(p)}" styleClass="text-danger" onclick="return confirm('Silinsin mi?')">
+
+                                <h:commandLink action="#{patientBean.delete(p)}" styleClass="text-danger" onclick="if(!confirm('Bu hastayı silmek istediğinize emin misiniz?')) return false;">
                                     <i class="fas fa-trash-alt"></i>
+                                    <f:ajax render="@form :globalMessages" />
                                 </h:commandLink>
                             </h:column>
                         </h:dataTable>

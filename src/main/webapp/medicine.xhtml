@@ -1,0 +1,108 @@
+<ui:composition template="/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:define name="title">İlaç Stok Yönetimi | Medimanage</ui:define>
+
+    <ui:define name="custom_css">
+        <style>
+            .main-card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: white;}
+            .header-bg { background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 15px 15px 0 0; padding: 20px; }
+            .btn-save { background-color: #10b981; color: white; border-radius: 10px; padding: 10px 25px; font-weight: bold; transition: all 0.3s;}
+            .btn-save:hover { background-color: #059669; color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);}
+            .form-label { font-weight: 600; color: #334155; font-size: 0.9rem; }
+            .form-control { border-radius: 10px; border: 1px solid #e2e8f0; }
+            .form-control:focus { border-color: #10b981; box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25); }
+            .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+            .messages li { padding: 15px; border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
+            .messages .info { background-color: #d1ecf1; color: #0c5460; border-left: 5px solid #0c5460; }
+            .messages .error { background-color: #f8d7da; color: #721c24; border-left: 5px solid #721c24; }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="container mb-5">
+
+            <h:messages id="globalMessages" styleClass="messages" infoClass="info" errorClass="error" globalOnly="false" showDetail="true" showSummary="true" />
+
+            <h:panelGroup rendered="#{loginBean.admin}">
+                <div class="card main-card mb-5">
+                    <div class="header-bg">
+                        <h4 class="mb-0"><i class="fas fa-boxes me-2"></i> Yeni İlaç Ekle</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h:form id="medicineForm">
+                            <h:inputHidden value="#{medicineBean.medicine.id}" />
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">İlaç Adı</label>
+                                    <h:inputText value="#{medicineBean.medicine.name}" styleClass="form-control" required="true" pt:placeholder="Örn: Parol 500mg" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Üretici Firma</label>
+                                    <h:inputText value="#{medicineBean.medicine.manufacturer}" styleClass="form-control" pt:placeholder="Örn: Abdi İbrahim" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Stok Miktarı (Kutu)</label>
+                                    <h:inputText value="#{medicineBean.medicine.stockQuantity}" styleClass="form-control" required="true" pt:type="number" pt:min="0" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Son Kullanma Tarihi</label>
+                                    <h:inputText value="#{medicineBean.medicine.expirationDate}" styleClass="form-control" pt:type="date" required="true">
+                                        <f:convertDateTime pattern="yyyy-MM-dd" />
+                                    </h:inputText>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Açıklama / Kullanım Alanı</label>
+                                    <h:inputTextarea value="#{medicineBean.medicine.description}" styleClass="form-control" rows="2" pt:placeholder="İlacın genel özellikleri..." />
+                                </div>
+                                <div class="col-12 text-end mt-4">
+                                    <h:commandButton action="#{medicineBean.save()}" value="Stoka Kaydet" styleClass="btn btn-save">
+                                        <f:ajax execute="@form" render="@form :medicineTableForm :globalMessages" />
+                                    </h:commandButton>
+                                </div>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+
+                <h:form id="medicineTableForm">
+                    <div class="card main-card p-4">
+                        <h5 class="fw-bold mb-4" style="color: #059669;"><i class="fas fa-list me-2"></i> İlaç Stok Listesi</h5>
+                        <div class="table-responsive">
+                            <h:dataTable value="#{medicineBean.medicines}" var="m" styleClass="table table-hover align-middle">
+                                <h:column><f:facet name="header">İlaç Adı</f:facet><span class="fw-bold">#{m.name}</span></h:column>
+                                <h:column><f:facet name="header">Üretici</f:facet>#{m.manufacturer}</h:column>
+                                <h:column>
+                                    <f:facet name="header">Stok</f:facet>
+                                    <span class="badge #{m.stockQuantity > 10 ? 'bg-success' : 'bg-danger'}">#{m.stockQuantity} Kutu</span>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">SKT</f:facet>
+                                    <h:outputText value="#{m.expirationDate}"><f:convertDateTime pattern="dd/MM/yyyy" /></h:outputText>
+                                </h:column>
+                                <h:column><f:facet name="header">Açıklama</f:facet>#{m.description}</h:column>
+                                <h:column>
+                                    <f:facet name="header">İşlemler</f:facet>
+                                    <h:commandLink action="#{medicineBean.prepareEdit(m)}" styleClass="text-primary me-3 text-decoration-none">
+                                        <i class="fas fa-edit fa-lg"></i>
+                                        <f:ajax render=":medicineForm" />
+                                    </h:commandLink>
+
+                                    <h:commandLink action="#{medicineBean.delete(m)}" styleClass="text-danger text-decoration-none"
+                                                   onclick="if(!confirm('Bu ilacı stoktan silmek istediğinize emin misiniz?')) return false;">
+                                        <i class="fas fa-trash-alt fa-lg"></i>
+                                        <f:ajax render="@form :globalMessages" />
+                                    </h:commandLink>
+                                </h:column>
+                            </h:dataTable>
+                        </div>
+                    </div>
+                </h:form>
+            </h:panelGroup>
+        </div>
+    </ui:define>
+</ui:composition>

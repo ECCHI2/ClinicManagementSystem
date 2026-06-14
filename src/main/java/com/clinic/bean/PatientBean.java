@@ -1,7 +1,6 @@
 package com.clinic.bean;
 
 import com.clinic.entity.Patient;
-import com.clinic.facade.PatientFacade;
 import com.clinic.facadeLocal.PatientFacadeLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -20,9 +19,8 @@ public class PatientBean implements Serializable {
     private PatientFacadeLocal patientFacade;
 
     private Patient patient = new Patient();
-    private List<Patient> patients; // تعريف القائمة مرة واحدة فقط
+    private List<Patient> patients;
 
-    // استدعاء البيانات عند تحميل الصفحة لأول مرة
     @PostConstruct
     public void init() {
         loadPatients();
@@ -34,63 +32,78 @@ public class PatientBean implements Serializable {
 
     public void save() {
         try {
-            // 1. فحص التكرار باستخدام الـ Facade (أسرع وأضمن)
             if (patient.getId() == null && patientFacade.existsByTc(patient.getTcNo())) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Bu TC numarası zaten kayıtlı!"));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu TC numarası zaten kayıtlı!"));
                 return;
             }
 
             if (patient.getId() == null) {
                 patientFacade.create(patient);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Hasta sisteme başarıyla kaydedildi."));
             } else {
                 patientFacade.edit(patient);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Güncellendi", "Hasta bilgileri güncellendi."));
             }
 
-            patient = new Patient(); // تصفير الكائن
-            loadPatients(); // تحديث القائمة
-
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Hasta sisteme kaydedildi."));
+            patient = new Patient();
+            loadPatients();
 
         } catch (Exception e) {
             e.printStackTrace();
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Kaydetme sırasında bir sorun oluştu."));
         }
     }
 
     public void delete(Patient p) {
-        patientFacade.remove(p);
-        loadPatients(); // تحديث القائمة بعد الحذف
+        try {
+            patientFacade.remove(p);
+            loadPatients();
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Hasta başarıyla silindi."));
+
+        } catch (Exception e) {
+            // البحث داخل تفاصيل الخطأ عن سبب الرفض من قاعدة البيانات
+            Throwable t = e.getCause();
+            boolean isConstraintViolation = false;
+
+            while (t != null) {
+                if (t.getMessage() != null && (t.getMessage().toLowerCase().contains("constraint") || t.getMessage().toLowerCase().contains("foreign key"))) {
+                    isConstraintViolation = true;
+                    break;
+                }
+                t = t.getCause();
+            }
+
+            if (isConstraintViolation) {
+                // إذا كان المريض مرتبط بجدول آخر
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu hasta silinemez! Çünkü sistemde ona ait tıbbi kayıtlar, reçeteler veya randevular bulunmaktadır."));
+            } else {
+                // إذا كان خطأ عام آخر
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Silme işlemi başarısız oldu."));
+            }
+        }
     }
 
     public void prepareEdit(Patient p) {
         this.patient = p;
     }
 
-    // --- Getters & Setters (بنفس مسمياتك الأصلية) ---
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
+    public Patient getPatient() { return patient; }
+    public void setPatient(Patient patient) { this.patient = patient; }
 
     public List<Patient> getPatientList() {
-        // فحصنا قائمة patients بدل المريض الواحد
         if (patients == null) {
-            // استخدمنا patientFacade بحرف صغير، وخزنا النتيجة بالقائمة
             patients = patientFacade.findAll();
         }
         return patients;
     }
 
-    // أبقيت لك هذه المسميات إذا كنت تستخدمها في أماكن أخرى
-    public Patient getNewPatient() {
-        return patient;
-    }
-    public void setNewPatient(Patient newPatient) {
-        this.patient = newPatient;
-    }
+    public Patient getNewPatient() { return patient; }
+    public void setNewPatient(Patient newPatient) { this.patient = newPatient; }
 }

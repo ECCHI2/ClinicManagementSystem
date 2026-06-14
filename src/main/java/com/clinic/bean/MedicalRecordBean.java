@@ -33,8 +33,9 @@ public class MedicalRecordBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        resetRecord();
-        loadRecords();
+        record = new MedicalRecord();
+        record.setPatient(new Patient());
+        record.setDoctor(new Doctor());
     }
 
     public void loadRecords() {
@@ -43,7 +44,6 @@ public class MedicalRecordBean implements Serializable {
 
     public void save() {
         try {
-            // جلب الدكتور والمريض الحقيقيين من قاعدة البيانات
             if (record.getDoctor() != null && record.getDoctor().getId() != null) {
                 record.setDoctor(doctorFacade.find(record.getDoctor().getId()));
             }
@@ -52,11 +52,9 @@ public class MedicalRecordBean implements Serializable {
             }
 
             if (this.record.getId() == null) {
-                // إضافة قيد جديد
                 recordFacade.create(record);
-                addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Yeni kayıt oluşturuldu.");
+                addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Yeni tıbbi kayıt başarıyla oluşturuldu.");
             } else {
-                // تعديل آمن 100%
                 MedicalRecord existing = recordFacade.find(this.record.getId());
                 if (existing != null) {
                     existing.setDiagnosis(record.getDiagnosis());
@@ -64,7 +62,7 @@ public class MedicalRecordBean implements Serializable {
                     existing.setDoctor(record.getDoctor());
                     existing.setPatient(record.getPatient());
                     recordFacade.edit(existing);
-                    addMessage(FacesMessage.SEVERITY_INFO, "Güncellendi", "Kayıt başarıyla güncellendi.");
+                    addMessage(FacesMessage.SEVERITY_INFO, "Güncellendi", "Tıbbi kayıt başarıyla güncellendi.");
                 }
             }
 
@@ -73,14 +71,12 @@ public class MedicalRecordBean implements Serializable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "İşlem başarısız!");
+            addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Kayıt işlemi başarısız oldu!");
         }
     }
 
-    // نستقبل الـ ID مباشرة من الواجهة
     public void delete(Long id) {
         if (id == null) {
-            System.out.println("خطأ: الـ ID وصل نل!");
             return;
         }
         try {
@@ -88,14 +84,29 @@ public class MedicalRecordBean implements Serializable {
             if (toDelete != null) {
                 recordFacade.remove(toDelete);
                 loadRecords();
-                addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Kayıt silindi.");
+                addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Tıbbi kayıt başarıyla silindi.");
             }
         } catch (Exception e) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Silme işlemi başarısız!");
+            // البحث الجنائي عن خطأ قاعدة البيانات
+            Throwable t = e.getCause();
+            boolean isConstraintViolation = false;
+
+            while (t != null) {
+                if (t.getMessage() != null && (t.getMessage().toLowerCase().contains("constraint") || t.getMessage().toLowerCase().contains("foreign key"))) {
+                    isConstraintViolation = true;
+                    break;
+                }
+                t = t.getCause();
+            }
+
+            if (isConstraintViolation) {
+                addMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu kayıt silinemez! Çünkü sistemde bu kayda bağlı reçeteler bulunmaktadır.");
+            } else {
+                addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Silme işlemi başarısız oldu!");
+            }
         }
     }
 
-    // نستقبل الـ ID مباشرة من الواجهة
     public void prepareEdit(Long id) {
         if (id != null) {
             this.record = recordFacade.find(id);
@@ -114,11 +125,9 @@ public class MedicalRecordBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
     }
 
-    // Getters and Setters الأساسية فقط
     public MedicalRecord getRecord() { return record; }
     public void setRecord(MedicalRecord record) { this.record = record; }
 
-    // حماية الجدول من فقدان البيانات
     public List<MedicalRecord> getRecords() {
         if (records == null) {
             loadRecords();
