@@ -1,0 +1,125 @@
+<ui:composition template="/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:define name="title">Laboratuvar Yönetimi | Medimanage</ui:define>
+
+    <ui:define name="custom_css">
+        <style>
+            .main-card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: white;}
+            .header-bg { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border-radius: 15px 15px 0 0; padding: 20px; }
+            .btn-save { background-color: #0284c7; color: white; border-radius: 10px; padding: 10px 25px; font-weight: bold; transition: all 0.3s;}
+            .btn-save:hover { background-color: #0369a1; color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(2, 132, 199, 0.3);}
+            .form-label { font-weight: 600; color: #334155; font-size: 0.9rem; }
+            .form-control, .form-select { border-radius: 10px; border: 1px solid #e2e8f0; }
+            .form-control:focus, .form-select:focus { border-color: #0284c7; box-shadow: 0 0 0 0.25rem rgba(2, 132, 199, 0.25); }
+            .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+            .messages li { padding: 15px; border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
+            .messages .info { background-color: #d1ecf1; color: #0c5460; border-left: 5px solid #0c5460; }
+            .messages .error { background-color: #f8d7da; color: #721c24; border-left: 5px solid #721c24; }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="container mb-5">
+
+            <h:messages id="globalMessages" styleClass="messages" infoClass="info" errorClass="error" globalOnly="false" showDetail="true" showSummary="true" />
+
+            <h:panelGroup rendered="#{loginBean.admin}">
+                <div class="card main-card mb-5">
+                    <div class="header-bg">
+                        <h4 class="mb-0"><i class="fas fa-microscope me-2"></i> Yeni Tahlil Talebi</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h:form id="labForm">
+                            <h:inputHidden value="#{laboratoryTestBean.labTest.id}" />
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Bağlı Tıbbi Kayıt</label>
+                                    <h:selectOneMenu value="#{laboratoryTestBean.medicalRecordId}" styleClass="form-select" required="true">
+                                        <f:selectItem itemLabel="Tıbbi Kayıt Seçiniz..." itemValue="#{null}" noSelectionOption="true"/>
+                                        <f:selectItems value="#{laboratoryTestBean.allMedicalRecords}" var="mr"
+                                                       itemLabel="Kayıt ##{mr.id} - #{mr.patient.firstName} #{mr.patient.lastName} (Teşhis: #{mr.diagnosis})" itemValue="#{mr.id}"/>
+                                    </h:selectOneMenu>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Tahlil Adı</label>
+                                    <h:inputText value="#{laboratoryTestBean.labTest.testName}" styleClass="form-control" required="true" pt:placeholder="Örn: Tam Kan Sayımı" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Tarih</label>
+                                    <h:inputText value="#{laboratoryTestBean.labTest.testDate}" styleClass="form-control" pt:type="date" required="true">
+                                        <f:convertDateTime pattern="yyyy-MM-dd" />
+                                    </h:inputText>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Durum</label>
+                                    <h:selectOneMenu value="#{laboratoryTestBean.labTest.status}" styleClass="form-select" required="true">
+                                        <f:selectItem itemLabel="Bekliyor" itemValue="Bekliyor" />
+                                        <f:selectItem itemLabel="Tamamlandı" itemValue="Tamamlandı" />
+                                    </h:selectOneMenu>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tahlil Sonucu</label>
+                                    <h:inputTextarea value="#{laboratoryTestBean.labTest.testResult}" styleClass="form-control" rows="3" pt:placeholder="Sonuçlar buraya girilecek..." />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Laboratuvar Notları</label>
+                                    <h:inputTextarea value="#{laboratoryTestBean.labTest.labNotes}" styleClass="form-control" rows="3" pt:placeholder="Ek notlar..." />
+                                </div>
+                                <div class="col-12 text-end mt-4">
+                                    <h:commandButton action="#{laboratoryTestBean.save()}" value="Tahlili Kaydet" styleClass="btn btn-save">
+                                        <f:ajax execute="@form" render="@form :labTableForm :globalMessages" />
+                                    </h:commandButton>
+                                </div>
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+
+                <h:form id="labTableForm">
+                    <div class="card main-card p-4">
+                        <h5 class="fw-bold mb-4" style="color: #0284c7;"><i class="fas fa-flask me-2"></i> Tahlil Sonuçları Listesi</h5>
+                        <div class="table-responsive">
+                            <h:dataTable value="#{laboratoryTestBean.labTests}" var="l" styleClass="table table-hover align-middle">
+                                <h:column><f:facet name="header">ID</f:facet><span class="badge bg-light text-dark">##{l.id}</span></h:column>
+                                <h:column><f:facet name="header">Tahlil Adı</f:facet><span class="fw-bold">#{l.testName}</span></h:column>
+                                <h:column>
+                                    <f:facet name="header">Hasta / Teşhis</f:facet>
+                                    <div class="d-flex flex-column">
+                                        <span>#{l.medicalRecord.patient.firstName} #{l.medicalRecord.patient.lastName}</span>
+                                        <small class="text-muted">#{l.medicalRecord.diagnosis}</small>
+                                    </div>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Tarih</f:facet>
+                                    <h:outputText value="#{l.testDate}"><f:convertDateTime pattern="dd/MM/yyyy" /></h:outputText>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Durum</f:facet>
+                                    <span class="badge #{l.status == 'Tamamlandı' ? 'bg-success' : 'bg-warning text-dark'}">#{l.status}</span>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">İşlemler</f:facet>
+                                    <h:commandLink action="#{laboratoryTestBean.prepareEdit(l)}" styleClass="text-primary me-3 text-decoration-none" title="Sonuç Gir / Düzenle">
+                                        <i class="fas fa-edit fa-lg"></i>
+                                        <f:ajax render=":labForm" />
+                                    </h:commandLink>
+
+                                    <h:commandLink action="#{laboratoryTestBean.delete(l)}" styleClass="text-danger text-decoration-none"
+                                                   onclick="if(!confirm('Bu tahlil kaydını silmek istediğinize emin misiniz?')) return false;">
+                                        <i class="fas fa-trash-alt fa-lg"></i>
+                                        <f:ajax render="@form :globalMessages" />
+                                    </h:commandLink>
+                                </h:column>
+                            </h:dataTable>
+                        </div>
+                    </div>
+                </h:form>
+            </h:panelGroup>
+        </div>
+    </ui:define>
+</ui:composition>

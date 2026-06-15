@@ -85,10 +85,10 @@ public class Prescription implements Serializable {
     @JoinColumn(name = "medical_record_id")
     private MedicalRecord medicalRecord;
 
-    private String medicineName; // اسم الدواء
-    private String dosage; // الجرعة (مثلاً: 500mg)
-    private String frequency; // التكرار (مثلاً: 3 مرات يومياً)
-    private String duration; // مدة الاستخدام
+    private String medicineName;
+    private String dosage;
+    private String frequency;
+    private String duration;
 
     // Getters and Setters...
 }

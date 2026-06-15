@@ -11,14 +11,14 @@ public class Medicine implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // اسم الدواء
-    private String manufacturer; // الشركة المصنعة
-    private Integer stockQuantity; // الكمية المتوفرة بالمستودع
+    private String name;
+    private String manufacturer;
+    private Integer stockQuantity;
 
     @Temporal(TemporalType.DATE)
-    private Date expirationDate; // تاريخ الصلاحية
+    private Date expirationDate;
 
-    private String description; // وصف أو استخدامات الدواء
+    private String description;
 
     // Getters and Setters
     public Long getId() { return id; }

@@ -17,6 +17,8 @@
             .bg-purple-light { background-color: rgba(139, 92, 246, 0.1); color: #7c3aed; }
             .nav-card { background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 20px; text-decoration: none; color: #1e293b; display: block; transition: all 0.2s; }
             .nav-card:hover { border-color: #0d9488; background: #f0fdfa; }
+            .hover-card { transition: transform 0.3s, box-shadow 0.3s; }
+            .hover-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; border: 1px solid #e2e8f0 !important; }
         </style>
     </ui:define>
 
@@ -31,7 +33,7 @@
                             <div class="icon-box bg-teal-light me-3"><i class="fas fa-user-md"></i></div>
                             <div>
                                 <h6 class="text-muted mb-0">Toplam Doktor</h6>
-                                <h3 class="fw-bold mb-0">#{dashboardBean.doctorCount}</h3>
+                                <h3 class="fw-bold mb-0">#{dashboardBean.totalDoctors}</h3>
                             </div>
                         </div>
                     </div>
@@ -42,7 +44,7 @@
                             <div class="icon-box bg-blue-light me-3"><i class="fas fa-user-injured"></i></div>
                             <div>
                                 <h6 class="text-muted mb-0">Toplam Hasta</h6>
-                                <h3 class="fw-bold mb-0">#{dashboardBean.patientCount}</h3>
+                                <h3 class="fw-bold mb-0">#{dashboardBean.totalPatients}</h3>
                             </div>
                         </div>
                     </div>
@@ -53,7 +55,7 @@
                             <div class="icon-box bg-purple-light me-3"><i class="fas fa-calendar-check"></i></div>
                             <div>
                                 <h6 class="text-muted mb-0">Toplam Randevu</h6>
-                                <h3 class="fw-bold mb-0">#{dashboardBean.appointmentCount}</h3>
+                                <h3 class="fw-bold mb-0">#{dashboardBean.totalAppointments}</h3>
                             </div>
                         </div>
                     </div>
@@ -61,14 +63,13 @@
             </div>
 
             <h5 class="fw-bold mb-3">Hızlı İşlemler</h5>
-            <div class="row g-3">
-                <h:panelGroup rendered="#{loginBean.admin}">
-                    <div class="col-md-4">
-                        <h:link outcome="doctor" styleClass="nav-card shadow-sm text-center">
-                            <i class="fas fa-user-md d-block mb-2 fs-3 text-teal" style="color: #0d9488;"></i>
-                            <span>Doktor Yönetimi</span>
-                        </h:link>
-                    </div>
+
+            <div class="row g-3 mb-3">
+                <h:panelGroup rendered="#{loginBean.admin}" layout="block" class="col-md-4">
+                    <h:link outcome="doctor" styleClass="nav-card shadow-sm text-center">
+                        <i class="fas fa-user-md d-block mb-2 fs-3 text-teal" style="color: #0d9488;"></i>
+                        <span>Doktor Yönetimi</span>
+                    </h:link>
                 </h:panelGroup>
 
                 <div class="col-md-4">
@@ -84,6 +85,27 @@
                     </h:link>
                 </div>
             </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h:link outcome="laboratory" styleClass="text-decoration-none">
+                        <div class="card text-center shadow-sm p-4 h-100 border-0 rounded-3 hover-card">
+                            <i class="fas fa-flask fa-2x mb-3" style="color: #f59e0b;"></i>
+                            <h6 class="fw-bold text-dark">Laboratuvar</h6>
+                        </div>
+                    </h:link>
+                </div>
+
+                <div class="col-md-6">
+                    <h:link outcome="shift" styleClass="text-decoration-none">
+                        <div class="card text-center shadow-sm p-4 h-100 border-0 rounded-3 hover-card">
+                            <i class="fas fa-moon fa-2x mb-3" style="color: #6366f1;"></i>
+                            <h6 class="fw-bold text-dark">Nöbet Çizelgesi</h6>
+                        </div>
+                    </h:link>
+                </div>
+            </div>
+
         </div>
     </ui:define>
 </ui:composition>

@@ -19,13 +19,13 @@ public class MedicalRecord implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "appointment_id")
-    private Appointment appointment; // السجل مرتبط بموعد محدد
+    private Appointment appointment;
 
     @Column(columnDefinition = "TEXT")
-    private String diagnosis; // التشخيص
+    private String diagnosis;
 
     @Column(columnDefinition = "TEXT")
-    private String clinicalNotes; // ملاحظات الطبيب
+    private String clinicalNotes;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date recordDate;

@@ -10,7 +10,6 @@ public interface UserFacadeLocal {
     void edit(Users entity);
     void remove(Users entity);
     List<Users> findAll();
-    // السطر اللي كان ناقصك:
     Users login(String username, String password);
     Users find(Object id);
 }

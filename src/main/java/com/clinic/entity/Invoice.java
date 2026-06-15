@@ -18,13 +18,13 @@ public class Invoice implements Serializable {
     @JoinColumn(name = "appointment_id", nullable = true)
     private Appointment appointment;
 
-    private Double amount; // المبلغ (Tutar)
+    private Double amount;
 
     @Temporal(TemporalType.DATE)
-    private Date invoiceDate; // تاريخ الفاتورة
+    private Date invoiceDate;
 
-    private String status; // حالة الدفع (Ödendi / Bekliyor)
-    private String description; // تفاصيل الخدمات (Açıklama)
+    private String status;
+    private String description;
 
     // Getters and Setters
     public Long getId() { return id; }

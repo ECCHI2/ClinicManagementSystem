@@ -1,10 +1,8 @@
 package com.clinic.bean;
 
-import com.clinic.entity.Doctor;
-import com.clinic.entity.Patient;
-import com.clinic.entity.Prescription;
+import com.clinic.entity.LaboratoryTest;
 import com.clinic.entity.MedicalRecord;
-import com.clinic.facadeLocal.PrescriptionFacadeLocal;
+import com.clinic.facadeLocal.LaboratoryTestFacadeLocal;
 import com.clinic.facadeLocal.MedicalRecordFacadeLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -17,26 +15,26 @@ import java.util.List;
 
 @Named
 @ViewScoped
-public class PrescriptionBean implements Serializable {
+public class LaboratoryTestBean implements Serializable {
 
-    private Prescription prescription;
-    private List<Prescription> prescriptions;
+    private LaboratoryTest labTest;
+    private List<LaboratoryTest> labTests;
     private Long medicalRecordId;
 
     @EJB
-    private PrescriptionFacadeLocal prescriptionFacade;
+    private LaboratoryTestFacadeLocal labTestFacade;
 
     @EJB
     private MedicalRecordFacadeLocal medicalRecordFacade;
 
     @PostConstruct
     public void init() {
-        resetPrescription();
-        loadPrescriptions();
+        resetTest();
+        loadTests();
     }
 
-    public void loadPrescriptions() {
-        prescriptions = prescriptionFacade.findAll();
+    public void loadTests() {
+        this.labTests = labTestFacade.findAll();
     }
 
     public List<MedicalRecord> getAllMedicalRecords() {
@@ -52,36 +50,34 @@ public class PrescriptionBean implements Serializable {
 
             MedicalRecord mr = medicalRecordFacade.find(medicalRecordId);
             if (mr == null) {
-                addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Seçilen Tıbbi Kayıt bulunamadı!");
+                addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Seçilen tıbbi kayıt bulunamadı!");
                 return;
             }
 
-            prescription.setMedicalRecord(mr);
-            prescription.setPatient(mr.getPatient());
-            prescription.setDoctor(mr.getDoctor());
+            labTest.setMedicalRecord(mr);
 
-            if (prescription.getId() == null) {
-                prescriptionFacade.create(prescription);
-                addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Reçete başarıyla eklendi.");
+            if (labTest.getId() == null) {
+                labTestFacade.create(labTest);
+                addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Yeni tahlil talebi oluşturuldu.");
             } else {
-                prescriptionFacade.edit(prescription);
-                addMessage(FacesMessage.SEVERITY_INFO, "Güncellendi", "Reçete başarıyla güncellendi.");
+                labTestFacade.edit(labTest);
+                addMessage(FacesMessage.SEVERITY_INFO, "Güncellendi", "Tahlil sonuçları başarıyla kaydedildi.");
             }
 
-            resetPrescription();
-            loadPrescriptions();
+            resetTest();
+            loadTests();
 
         } catch (Exception e) {
             e.printStackTrace();
-            addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "İşlem başarısız: " + e.getMessage());
+            addMessage(FacesMessage.SEVERITY_ERROR, "Hata", "İşlem başarısız oldu!");
         }
     }
 
-    public void delete(Prescription p) {
+    public void delete(LaboratoryTest test) {
         try {
-            prescriptionFacade.remove(p);
-            loadPrescriptions();
-            addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Reçete başarıyla silindi.");
+            labTestFacade.remove(test);
+            loadTests();
+            addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Tahlil kaydı silindi.");
         } catch (Exception e) {
             Throwable t = e.getCause();
             boolean isConstraintViolation = false;
@@ -95,24 +91,26 @@ public class PrescriptionBean implements Serializable {
             }
 
             if (isConstraintViolation) {
-                addMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu reçete silinemez! Çünkü sistemde ona bağlı başka işlemler bulunmaktadır.");
+                addMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu kayıt silinemez! Sisteme entegre başka işlemlerle bağlantılıdır.");
             } else {
                 addMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Silme işlemi başarısız oldu.");
             }
         }
     }
 
-    public void prepareEdit(Prescription p) {
-        this.prescription = p;
-        if (p != null && p.getMedicalRecord() != null) {
-            this.medicalRecordId = p.getMedicalRecord().getId();
+    public void prepareEdit(LaboratoryTest test) {
+        this.labTest = test;
+        if (test != null && test.getMedicalRecord() != null) {
+            this.medicalRecordId = test.getMedicalRecord().getId();
         } else {
             this.medicalRecordId = null;
         }
     }
 
-    private void resetPrescription() {
-        prescription = new Prescription();
+    private void resetTest() {
+        labTest = new LaboratoryTest();
+        labTest.setTestDate(new java.util.Date());
+        labTest.setStatus("Bekliyor");
         medicalRecordId = null;
     }
 
@@ -120,9 +118,10 @@ public class PrescriptionBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
     }
 
-    public Prescription getPrescription() { return prescription; }
-    public void setPrescription(Prescription prescription) { this.prescription = prescription; }
-    public List<Prescription> getPrescriptions() { return prescriptions; }
+    // Getters and Setters
+    public LaboratoryTest getLabTest() { return labTest; }
+    public void setLabTest(LaboratoryTest labTest) { this.labTest = labTest; }
+    public List<LaboratoryTest> getLabTests() { return labTests; }
     public Long getMedicalRecordId() { return medicalRecordId; }
     public void setMedicalRecordId(Long medicalRecordId) { this.medicalRecordId = medicalRecordId; }
 }

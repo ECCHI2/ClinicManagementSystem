@@ -3,32 +3,36 @@ package com.clinic.bean;
 import com.clinic.facadeLocal.AppointmentFacadeLocal;
 import com.clinic.facadeLocal.DoctorFacadeLocal;
 import com.clinic.facadeLocal.PatientFacadeLocal;
+import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
-import jakarta.faces.view.ViewScoped;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
-import java.io.Serializable;
 
-@Named("dashboardBean")
-@ViewScoped
-public class DashboardBean implements Serializable {
+@Named
+@RequestScoped
+public class DashboardBean {
 
     @EJB
     private DoctorFacadeLocal doctorFacade;
+
     @EJB
     private PatientFacadeLocal patientFacade;
+
     @EJB
     private AppointmentFacadeLocal appointmentFacade;
 
-    // استخدام دوال العد المباشرة من الـ Facade
-    public long getDoctorCount() {
-        return doctorFacade.countDoctors();
+    private int totalDoctors;
+    private int totalPatients;
+    private int totalAppointments;
+
+    @PostConstruct
+    public void init() {
+        totalDoctors = doctorFacade.findAll().size();
+        totalPatients = patientFacade.findAll().size();
+        totalAppointments = appointmentFacade.findAll().size();
     }
 
-    public long getPatientCount() {
-        return patientFacade.countPatients();
-    }
-
-    public long getAppointmentCount() {
-        return appointmentFacade.countAppointments();
-    }
+    public int getTotalDoctors() { return totalDoctors; }
+    public int getTotalPatients() { return totalPatients; }
+    public int getTotalAppointments() { return totalAppointments; }
 }

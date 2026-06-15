@@ -78,7 +78,7 @@ public class AppointmentBean implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Randevu başarıyla silindi."));
         } catch (Exception e) {
-            // فحص الخطأ القادم من قاعدة البيانات
+
             Throwable t = e.getCause();
             boolean isConstraintViolation = false;
 

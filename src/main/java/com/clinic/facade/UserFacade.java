@@ -46,7 +46,6 @@ public class UserFacade extends AbstractFacade implements UserFacadeLocal {
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             CriteriaQuery<Users> cq = cb.createQuery(Users.class);
             Root<Users> root = cq.from(Users.class);
-            // استخدام CriteriaBuilder للبحث عن المستخدم وكلمة المرور
             cq.select(root).where(
                     cb.and(
                             cb.equal(root.get("username"), username),
@@ -55,7 +54,7 @@ public class UserFacade extends AbstractFacade implements UserFacadeLocal {
             );
             return entityManager.createQuery(cq).getSingleResult();
         } catch (Exception e) {
-            return null; // في حال عدم وجود المستخدم أو خطأ بالبيانات
+            return null;
         }
     }
 }

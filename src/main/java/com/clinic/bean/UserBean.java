@@ -14,13 +14,12 @@ import java.util.List;
 @SessionScoped
 public class UserBean implements Serializable {
 
-    @EJB // السيرفر سيتكفل بحقن الـ Facade هنا تلقائياً
+    @EJB
     private UserFacadeLocal userFacade;
 
     @PostConstruct
     public void init() {
         try {
-            // استدعاء تجريبي لإنشاء الجداول في قاعدة البيانات فور تشغيل التطبيق
             userFacade.findAll();
             System.out.println("--- Database Tables Initialized Successfully ---");
         } catch (Exception e) {

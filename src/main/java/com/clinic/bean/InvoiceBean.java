@@ -107,7 +107,7 @@ public class InvoiceBean implements Serializable {
 
     private void resetInvoice() {
         invoice = new Invoice();
-        invoice.setInvoiceDate(new java.util.Date()); // تاريخ اليوم افتراضياً
+        invoice.setInvoiceDate(new java.util.Date());
         patientId = null;
         appointmentId = null;
     }

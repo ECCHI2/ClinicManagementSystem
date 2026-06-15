@@ -3,7 +3,7 @@ package com.clinic.entity;
 import jakarta.persistence.*;
 import java.io.Serializable;
 
-@Entity // هذا السطر يربطه بالقاعدة
+@Entity
 public class Users implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

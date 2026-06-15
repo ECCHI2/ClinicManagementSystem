@@ -44,7 +44,6 @@ public class DoctorFacade extends AbstractFacade implements DoctorFacadeLocal {
 
     @Override
     public long countDoctors() {
-        // استخدام CriteriaBuilder لعد الصفوف بدلاً من SELECT COUNT
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Doctor> root = cq.from(Doctor.class);
@@ -57,21 +56,19 @@ public class DoctorFacade extends AbstractFacade implements DoctorFacadeLocal {
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Doctor> root = cq.from(Doctor.class);
 
-        // فحص ما إذا كان رقم الهوية (tcNo) موجوداً مسبقاً
         cq.select(cb.count(root)).where(cb.equal(root.get("tcNo"), tc));
         return entityManager.createQuery(cq).getSingleResult() > 0;
     }
     @Override
     public boolean hasAppointments(Long doctorId) {
         try {
-            // استخدام JPQL أضمن وأسرع لأنه يقرأ من كلاس Appointment مباشرة
             Long count = (Long) entityManager.createQuery("SELECT COUNT(a) FROM Appointment a WHERE a.doctor.id = :docId")
                     .setParameter("docId", doctorId)
                     .getSingleResult();
             return count > 0;
         } catch (Exception e) {
-            e.printStackTrace(); // لطباعة الخطأ في الكونسول إذا حدث
-            return true; // حماية قصوى: إذا فشل الفحص، نفترض أن لديه مواعيد لنمنع انهيار السيرفر!
+            e.printStackTrace();
+            return true;
         }
     }
 }

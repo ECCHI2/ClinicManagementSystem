@@ -66,7 +66,6 @@ public class PatientBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Hasta başarıyla silindi."));
 
         } catch (Exception e) {
-            // البحث داخل تفاصيل الخطأ عن سبب الرفض من قاعدة البيانات
             Throwable t = e.getCause();
             boolean isConstraintViolation = false;
 
@@ -79,11 +78,9 @@ public class PatientBean implements Serializable {
             }
 
             if (isConstraintViolation) {
-                // إذا كان المريض مرتبط بجدول آخر
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Bu hasta silinemez! Çünkü sistemde ona ait tıbbi kayıtlar, reçeteler veya randevular bulunmaktadır."));
             } else {
-                // إذا كان خطأ عام آخر
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata!", "Silme işlemi başarısız oldu."));
             }

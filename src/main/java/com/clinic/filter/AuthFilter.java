@@ -15,19 +15,16 @@ public class AuthFilter implements Filter {
 
         String path = req.getRequestURI().substring(req.getContextPath().length());
 
-        // السماح بالمرور للوجن والموارد
         if (path.contains("login.xhtml") || path.contains("jakarta.faces.resource")) {
             chain.doFilter(request, response);
             return;
         }
 
-        // التأكد من وجود "علامة الدخول" في السيشين مباشرة
         Object userRole = req.getSession().getAttribute("userRole");
 
         if (userRole == null) {
             res.sendRedirect(req.getContextPath() + "/login.xhtml");
         } else {
-            // حماية صفحة الأطباء
             if (path.contains("doctor.xhtml") && !"ADMIN".equals(userRole.toString())) {
                 res.sendRedirect(req.getContextPath() + "/index.xhtml");
             } else {

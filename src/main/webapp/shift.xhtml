@@ -1,0 +1,92 @@
+<ui:composition template="/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:define name="title">Nöbet Çizelgesi | Medimanage</ui:define>
+
+    <ui:define name="custom_css">
+        <style>
+            .main-card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: white;}
+            .header-bg { background: linear-gradient(135deg, #6366f1, #4338ca); color: white; border-radius: 15px 15px 0 0; padding: 20px; }
+            .btn-save { background-color: #6366f1; color: white; border-radius: 10px; padding: 10px 25px; font-weight: bold; transition: all 0.3s;}
+            .btn-save:hover { background-color: #4338ca; transform: translateY(-2px); color: white;}
+            .form-label { font-weight: 600; color: #334155; }
+            .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+            .messages li { padding: 15px; border-radius: 10px; margin-bottom: 10px; font-weight: bold; }
+            .messages .info { background-color: #e0e7ff; color: #3730a3; border-left: 5px solid #3730a3; }
+            .messages .error { background-color: #fee2e2; color: #991b1b; border-left: 5px solid #991b1b; }
+        </style>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="container mb-5">
+            <h:messages id="globalMessages" styleClass="messages" infoClass="info" errorClass="error" showDetail="true" />
+
+            <div class="card main-card mb-5">
+                <div class="header-bg">
+                    <h4 class="mb-0"><i class="fas fa-moon me-2"></i> Yeni Nöbet Planla</h4>
+                </div>
+                <div class="card-body p-4">
+                    <h:form id="shiftForm">
+                        <h:inputHidden value="#{shiftBean.shift.id}" />
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Doktor</label>
+                                <h:selectOneMenu value="#{shiftBean.doctorId}" styleClass="form-select" required="true">
+                                    <f:selectItem itemLabel="Doktor Seçiniz..." itemValue="#{null}" />
+                                    <f:selectItems value="#{shiftBean.allDoctors}" var="d" itemLabel="Dr. #{d.firstName} #{d.lastName}" itemValue="#{d.id}" />
+                                </h:selectOneMenu>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tarih</label>
+                                <h:inputText value="#{shiftBean.shift.shiftDate}" styleClass="form-control" pt:type="date" required="true">
+                                    <f:convertDateTime pattern="yyyy-MM-dd" />
+                                </h:inputText>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Nöbet Tipi</label>
+                                <h:selectOneMenu value="#{shiftBean.shift.shiftType}" styleClass="form-select">
+                                    <f:selectItem itemLabel="Gündüz (08:00 - 16:00)" itemValue="Gündüz" />
+                                    <f:selectItem itemLabel="Gece (16:00 - 08:00)" itemValue="Gece" />
+                                </h:selectOneMenu>
+                            </div>
+                            <div class="col-12 text-end">
+                                <h:commandButton action="#{shiftBean.save()}" value="Nöbeti Kaydet" styleClass="btn btn-save">
+                                    <f:ajax execute="@form" render="@form :shiftTableForm :globalMessages" />
+                                </h:commandButton>
+                            </div>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+
+            <h:form id="shiftTableForm">
+                <div class="card main-card p-4">
+                    <h5 class="fw-bold mb-4" style="color: #4338ca;"><i class="fas fa-calendar-alt me-2"></i> Aktif Nöbet Listesi</h5>
+                    <h:dataTable value="#{shiftBean.shifts}" var="s" styleClass="table table-hover align-middle">
+                        <h:column><f:facet name="header">Doktor</f:facet>Dr. #{s.doctor.firstName} #{s.doctor.lastName}</h:column>
+                        <h:column><f:facet name="header">Tarih</f:facet><h:outputText value="#{s.shiftDate}"><f:convertDateTime pattern="dd/MM/yyyy" /></h:outputText></h:column>
+                        <h:column>
+                            <f:facet name="header">Tip</f:facet>
+                            <span class="badge #{s.shiftType == 'Gece' ? 'bg-dark' : 'bg-warning text-dark'}">#{s.shiftType}</span>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">İشlemler</f:facet>
+                            <h:commandLink action="#{shiftBean.prepareEdit(s)}" styleClass="text-primary me-3 text-decoration-none">
+                                <i class="fas fa-edit fa-lg"></i>
+                                <f:ajax render=":shiftForm" />
+                            </h:commandLink>
+                            <h:commandLink action="#{shiftBean.delete(s)}" styleClass="text-danger">
+                                <i class="fas fa-trash-alt fa-lg"></i>
+                                <f:ajax render="@form :globalMessages" />
+                            </h:commandLink>
+                        </h:column>
+                    </h:dataTable>
+                </div>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

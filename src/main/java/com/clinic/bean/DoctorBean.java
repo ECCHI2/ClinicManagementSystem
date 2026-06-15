@@ -61,11 +61,11 @@ public class DoctorBean implements Serializable {
     public void delete(Doctor doctor) {
         try {
             doctorFacade.remove(doctor);
-            loadDoctors(); // تحديث القائمة
+            loadDoctors();
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Doktor başarıyla silindi."));
         } catch (Exception e) {
-            // البحث الجنائي عن خطأ قاعدة البيانات
+
             Throwable t = e.getCause();
             boolean isConstraintViolation = false;
 

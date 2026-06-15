@@ -9,9 +9,9 @@ public class Poliklinik implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String clinicName; // اسم العيادة
+    private String clinicName;
 
-    // Getters and Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getClinicName() { return clinicName; }

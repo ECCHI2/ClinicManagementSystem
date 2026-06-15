@@ -15,8 +15,6 @@ public class GenericConverter implements Converter<Object> {
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
         if (value == null || value.isEmpty() || value.equals("null")) return null;
-
-        // الحصول على نوع الكلاس المطلوب (Doctor أو Patient)
         Class<?> type = component.getValueExpression("value").getType(context.getELContext());
 
         try {
@@ -31,7 +29,6 @@ public class GenericConverter implements Converter<Object> {
         if (value == null) return "";
 
         try {
-            // استخراج الـ ID لتحويله لنص في الـ HTML
             Object id = value.getClass().getMethod("getId").invoke(value);
             return String.valueOf(id);
         } catch (Exception e) {

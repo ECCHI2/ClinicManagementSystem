@@ -15,13 +15,13 @@ public class DoctorSchedule implements Serializable {
     @ManyToOne
     private Doctor doctor;
 
-    private String dayOfWeek; // (Pazartesi, Salı, ...)
+    private String dayOfWeek;
 
     @Temporal(TemporalType.TIME)
-    private Date startTime; // بداية الدوام
+    private Date startTime;
 
     @Temporal(TemporalType.TIME)
-    private Date endTime; // نهاية الدوام
+    private Date endTime;
 
     // Getters and Setters...
 

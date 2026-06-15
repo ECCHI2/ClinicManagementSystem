@@ -12,5 +12,5 @@ public interface PatientFacadeLocal {
     Patient find(Object id);
     List<Patient> findAll();
     long countPatients();
-    boolean existsByTc(String tc); // الدالة التي سألك عنها الدكتور للتحقق من رقم الهوية
+    boolean existsByTc(String tc);
 }

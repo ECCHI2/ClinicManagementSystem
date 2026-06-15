@@ -24,11 +24,10 @@ public class LoginBean implements Serializable {
         Users user = userFacade.login(username, password);
         if (user != null) {
             currentUser = user;
-            // نزرع العلامة في السيشين مباشرة
+
             jakarta.faces.context.FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("userRole", user.getRole());
             return "index?faces-redirect=true";
         } else {
-            // رسالة الخطأ
             return null;
         }
     }

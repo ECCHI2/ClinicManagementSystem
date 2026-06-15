@@ -87,7 +87,6 @@ public class MedicalRecordBean implements Serializable {
                 addMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Tıbbi kayıt başarıyla silindi.");
             }
         } catch (Exception e) {
-            // البحث الجنائي عن خطأ قاعدة البيانات
             Throwable t = e.getCause();
             boolean isConstraintViolation = false;
 

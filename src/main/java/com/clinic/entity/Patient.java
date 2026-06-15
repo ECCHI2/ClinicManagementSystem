@@ -28,17 +28,16 @@ public class Patient implements Serializable {
 
         int age = today.get(java.util.Calendar.YEAR) - birth.get(java.util.Calendar.YEAR);
 
-        // تصحيح إذا كان يوم الميلاد لم يأتِ بعد في السنة الحالية
+
         if (today.get(java.util.Calendar.DAY_OF_YEAR) < birth.get(java.util.Calendar.DAY_OF_YEAR)) {
             age--;
         }
 
-        // إذا كان العمر أقل من 1 (حديث ولادة)
         if (age < 1) {
             return "Yeni Doğan (0)";
         }
 
-        return String.valueOf(age); // إرجاع العمر كـ نص
+        return String.valueOf(age);
     }
 
     public Patient() {}

@@ -36,7 +36,6 @@ public class AppointmentFacade extends AbstractFacade implements AppointmentFaca
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Appointment> cq = cb.createQuery(Appointment.class);
         Root<Appointment> root = cq.from(Appointment.class);
-        // ترتيب تنازلي حسب التاريخ (DESC) مثلما طلب الدكتور
         cq.select(root).orderBy(cb.desc(root.get("appointmentDate")));
         return entityManager.createQuery(cq).getResultList();
     }
